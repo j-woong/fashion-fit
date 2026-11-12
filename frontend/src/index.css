@@ -136,3 +136,87 @@ body {
   margin: 4px 0 0;
   font-weight: 600;
 }
+
+h1 {
+  margin-bottom: 4px;
+}
+
+a.text-button {
+  text-decoration: none;
+}
+
+.text-button.strong {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.text-button.danger {
+  color: #b42318;
+}
+
+.actions {
+  display: flex;
+  gap: 4px;
+}
+
+.field select {
+  font-size: 16px;
+  padding: 10px 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  background: #fff;
+}
+
+fieldset.field {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+fieldset.field legend {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.hint {
+  color: #888;
+}
+
+.radio-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.radio {
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.radio input {
+  display: none;
+}
+
+.radio.checked {
+  border-color: #1a1a1a;
+  font-weight: 600;
+}
+
+.chips {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chips li {
+  background: #f2f2f2;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 13px;
+}

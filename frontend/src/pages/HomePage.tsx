@@ -1,21 +1,27 @@
-import type { MeResponse } from '../api/auth'
-import type { BodyProfile } from '../api/bodyProfile'
-
-type Props = {
-  me: MeResponse
-  bodyProfile: BodyProfile | null
-  onEditBodyProfile: () => void
-  onLogout: () => void
-}
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router'
+import { getBodyProfile, type BodyProfile } from '../api/bodyProfile'
+import { listGarments, type Garment } from '../api/garments'
+import { useAuth } from '../auth/AuthContext'
 
 const show = (value: number | null, unit: string) => (value == null ? '-' : `${value}${unit}`)
 
-function HomePage({ me, bodyProfile, onEditBodyProfile, onLogout }: Props) {
+function HomePage() {
+  const { me, logout } = useAuth()
+  const [bodyProfile, setBodyProfile] = useState<BodyProfile | null>(null)
+  const [garments, setGarments] = useState<Garment[] | null>(null)
+
+  // 홈에 필요한 두 가지를 동시에 불러온다
+  useEffect(() => {
+    getBodyProfile().then(setBodyProfile)
+    listGarments().then(setGarments)
+  }, [])
+
   return (
     <main className="page">
       <header className="header">
         <h1>Fashion Fit</h1>
-        <button type="button" className="text-button" onClick={onLogout}>
+        <button type="button" className="text-button" onClick={logout}>
           로그아웃
         </button>
       </header>
@@ -28,9 +34,9 @@ function HomePage({ me, bodyProfile, onEditBodyProfile, onLogout }: Props) {
       <section className="card">
         <div className="header">
           <h2>내 신체 정보</h2>
-          <button type="button" className="text-button" onClick={onEditBodyProfile}>
+          <Link className="text-button" to="/body-profile">
             수정
-          </button>
+          </Link>
         </div>
         {bodyProfile ? (
           <dl className="stats">
@@ -53,8 +59,22 @@ function HomePage({ me, bodyProfile, onEditBodyProfile, onLogout }: Props) {
       </section>
 
       <section className="card">
-        <h2>다음 단계</h2>
-        <p>내 옷장에 첫 기준 옷(잘 맞는 옷)의 실측을 등록할 거예요.</p>
+        <div className="header">
+          <h2>내 옷장</h2>
+          <Link className="text-button" to="/closet">
+            전체 보기
+          </Link>
+        </div>
+        {garments === null && <p>불러오는 중...</p>}
+        {garments?.length === 0 && (
+          <>
+            <p>잘 맞는 옷 하나의 실측을 등록하면 사이즈 비교를 시작할 수 있어요.</p>
+            <Link className="button primary" to="/closet/new">
+              첫 기준 옷 등록하기
+            </Link>
+          </>
+        )}
+        {garments && garments.length > 0 && <p>기준 옷 {garments.length}벌이 등록돼 있어요.</p>}
       </section>
     </main>
   )

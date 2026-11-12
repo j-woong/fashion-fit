@@ -1,8 +1,12 @@
 import { useEffect, useState } from 'react'
+import { Navigate, Route, Routes } from 'react-router'
 import { getMe, logout, type MeResponse } from './api/auth'
-import { getBodyProfile, type BodyProfile } from './api/bodyProfile'
 import { UnauthorizedError } from './api/client'
+import { AuthContext, type AuthValue } from './auth/AuthContext'
+import BodyProfileEditPage from './pages/BodyProfileEditPage'
 import BodyProfilePage from './pages/BodyProfilePage'
+import ClosetPage from './pages/ClosetPage'
+import GarmentFormPage from './pages/GarmentFormPage'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 
@@ -13,18 +17,13 @@ type AuthState =
   | { kind: 'member'; me: MeResponse }
   | { kind: 'error'; message: string }
 
-// 로그인한 사람이 지금 보고 있는 화면 (화면이 더 늘어나면 react-router 로 바꾼다)
-type View = 'home' | 'editBodyProfile'
-
 function App() {
   const [auth, setAuth] = useState<AuthState>({ kind: 'loading' })
-  const [view, setView] = useState<View>('home')
-  const [bodyProfile, setBodyProfile] = useState<BodyProfile | null>(null)
 
   // 구글 로그인에 실패하면 백엔드가 /?loginError=true 로 돌려보낸다
   const loginError = new URLSearchParams(window.location.search).has('loginError')
 
-  // 1) 처음 뜰 때 "나 로그인 돼 있어?"
+  // 처음 뜰 때 "나 로그인 돼 있어?"
   useEffect(() => {
     getMe()
       .then((me) => setAuth({ kind: 'member', me }))
@@ -37,28 +36,7 @@ function App() {
       })
   }, [])
 
-  // 2) 로그인 돼 있고 신체 정보가 있으면 불러온다
-  const hasBodyProfile = auth.kind === 'member' && auth.me.hasBodyProfile
-  useEffect(() => {
-    if (hasBodyProfile) {
-      getBodyProfile().then(setBodyProfile)
-    }
-  }, [hasBodyProfile])
-
-  const handleLogout = async () => {
-    await logout()
-    setAuth({ kind: 'guest' })
-    setBodyProfile(null)
-  }
-
-  const handleBodyProfileSaved = (saved: BodyProfile) => {
-    setBodyProfile(saved)
-    if (auth.kind === 'member') {
-      setAuth({ kind: 'member', me: { ...auth.me, hasBodyProfile: true } })
-    }
-    setView('home')
-  }
-
+  // ---- 1) 로그인 전에 보여줄 화면들 ----
   if (auth.kind === 'loading') {
     return <main className="page">불러오는 중...</main>
   }
@@ -77,27 +55,38 @@ function App() {
     return <LoginPage loginError={loginError} />
   }
 
-  // 처음 가입한 사람: 신체 정보부터
-  if (!auth.me.hasBodyProfile) {
-    return <BodyProfilePage mode="onboarding" initial={null} onSaved={handleBodyProfileSaved} />
+  // ---- 2) 로그인한 사람: Context 에 담아서 아래 화면들이 useAuth() 로 꺼내 쓰게 한다 ----
+  const me = auth.me
+  const authValue: AuthValue = {
+    me,
+    updateMe: (patch) => setAuth({ kind: 'member', me: { ...me, ...patch } }),
+    logout: async () => {
+      await logout()
+      setAuth({ kind: 'guest' })
+    },
   }
-  if (view === 'editBodyProfile') {
-    return (
-      <BodyProfilePage
-        mode="edit"
-        initial={bodyProfile}
-        onSaved={handleBodyProfileSaved}
-        onCancel={() => setView('home')}
-      />
-    )
-  }
+
   return (
-    <HomePage
-      me={auth.me}
-      bodyProfile={bodyProfile}
-      onEditBodyProfile={() => setView('editBodyProfile')}
-      onLogout={handleLogout}
-    />
+    <AuthContext.Provider value={authValue}>
+      {me.hasBodyProfile ? (
+        // 주소별 화면
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/body-profile" element={<BodyProfileEditPage />} />
+          <Route path="/closet" element={<ClosetPage />} />
+          <Route path="/closet/new" element={<GarmentFormPage />} />
+          <Route path="/closet/:garmentId/edit" element={<GarmentFormPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      ) : (
+        // 처음 가입한 사람: 어느 주소로 들어와도 신체 정보부터
+        <BodyProfilePage
+          mode="onboarding"
+          initial={null}
+          onSaved={() => authValue.updateMe({ hasBodyProfile: true })}
+        />
+      )}
+    </AuthContext.Provider>
   )
 }
 
