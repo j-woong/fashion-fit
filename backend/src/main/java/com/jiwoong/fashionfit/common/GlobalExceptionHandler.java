@@ -3,6 +3,7 @@ package com.jiwoong.fashionfit.common;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
@@ -28,5 +29,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleUnreadable(HttpMessageNotReadableException e) {
         return ResponseEntity.badRequest().body(ErrorResponse.of("요청 형식이 올바르지 않아요"));
+    }
+
+    // 서비스에서 검사한 규칙 위반 → 400
+    @ExceptionHandler(InvalidInputException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidInput(InvalidInputException e) {
+        return ResponseEntity.badRequest().body(new ErrorResponse(e.getMessage(), e.getFieldErrors()));
+    }
+
+    // 없는 데이터 → 404
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(NotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.of(e.getMessage()));
     }
 }
