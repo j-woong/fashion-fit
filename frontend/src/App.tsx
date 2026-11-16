@@ -9,6 +9,9 @@ import ClosetPage from './pages/ClosetPage'
 import GarmentFormPage from './pages/GarmentFormPage'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
+import SizeCheckFormPage from './pages/SizeCheckFormPage'
+import SizeCheckListPage from './pages/SizeCheckListPage'
+import SizeCheckResultPage from './pages/SizeCheckResultPage'
 
 // 로그인 상태: 확인 중 / 로그인 안 됨 / 로그인 됨 / 서버 오류
 type AuthState =
@@ -76,6 +79,9 @@ function App() {
           <Route path="/closet" element={<ClosetPage />} />
           <Route path="/closet/new" element={<GarmentFormPage />} />
           <Route path="/closet/:garmentId/edit" element={<GarmentFormPage />} />
+          <Route path="/size-checks" element={<SizeCheckListPage />} />
+          <Route path="/size-checks/new" element={<SizeCheckFormPage />} />
+          <Route path="/size-checks/:sizeCheckId" element={<SizeCheckResultPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       ) : (

@@ -33,6 +33,19 @@ function HomePage() {
 
       <section className="card">
         <div className="header">
+          <h2>사이즈 비교</h2>
+          <Link className="text-button" to="/size-checks">
+            기록 보기
+          </Link>
+        </div>
+        <p>사고 싶은 옷의 실측표를 넣으면 내 옷과 비교해서 맞는 사이즈를 알려드려요.</p>
+        <Link className="button primary" to="/size-checks/new">
+          사이즈 비교하기
+        </Link>
+      </section>
+
+      <section className="card">
+        <div className="header">
           <h2>내 신체 정보</h2>
           <Link className="text-button" to="/body-profile">
             수정
