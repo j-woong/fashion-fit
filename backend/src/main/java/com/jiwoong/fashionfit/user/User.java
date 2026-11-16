@@ -2,6 +2,9 @@ package com.jiwoong.fashionfit.user;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -27,7 +30,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Hibernate 6+ 는 MySQL 에서 enum 필드를 MySQL 전용 ENUM 타입 컬럼으로 기대한다.
+    // 우리는 값 추가가 쉬운 VARCHAR 로 저장하므로 명시한다 (안 하면 ddl-auto: validate 에서 타입 불일치로 서버가 안 뜸).
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(nullable = false, length = 20)
     private Provider provider;
 

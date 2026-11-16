@@ -5,14 +5,17 @@
 | 폴더 | 내용 |
 | --- | --- |
 | `frontend/` | React + TypeScript + Vite (모바일 반응형 웹) |
-| `backend/` | Spring Boot 4 + Java 25 (이후 Spring AI 추가) |
+| `backend/` | Spring Boot 4 + Java 25 + MySQL 8.4 (Flyway) |
 
 ## 실행
 
-터미널 두 개를 연다.
+준비물: Docker Desktop, Java 25, Node 22.22 이상
 
 ```bash
-# 1) 백엔드: http://localhost:8080
+# 0) MySQL (docker-compose.yml): localhost:3306
+docker compose up -d
+
+# 1) 백엔드: http://localhost:8080  (처음 뜰 때 Flyway 가 테이블을 만든다)
 cd backend
 ./gradlew bootRun
 
@@ -27,3 +30,10 @@ npm run dev
 ## 요청 흐름
 
 브라우저(5173) → `/api/health` → Vite proxy → Spring(8080) `HealthController` → JSON 응답 → React 화면
+
+## 테스트
+
+```bash
+cd backend
+./gradlew test   # Docker 가 켜져 있어야 한다 (Testcontainers 가 테스트용 MySQL 을 띄움)
+```

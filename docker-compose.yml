@@ -1,0 +1,26 @@
+# 로컬 개발용 MySQL. 실행: docker compose up -d   /   중지: docker compose down
+# 비밀번호 등은 셸 환경변수나 루트의 .env 파일로 바꿀 수 있다 (없으면 아래 기본값)
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: fashion-fit-mysql
+    environment:
+      MYSQL_DATABASE: fashionfit
+      MYSQL_USER: ${DB_USERNAME:-fashionfit}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-fashionfit}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      TZ: Asia/Seoul
+    # 한글/이모지가 깨지지 않도록 utf8mb4
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_0900_ai_ci"]
+    ports:
+      - "3306:3306"
+    volumes:
+      # 컨테이너를 지워도 데이터는 남는다 (완전히 지우려면 docker compose down -v)
+      - fashion-fit-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  fashion-fit-mysql-data:

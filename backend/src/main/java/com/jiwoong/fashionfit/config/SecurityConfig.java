@@ -30,12 +30,9 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // JS가 쿠키를 읽을 수 있게
-                        .csrfTokenRequestHandler(csrfHandler)
-                        .ignoringRequestMatchers("/h2-console/**"))
-                // H2 콘솔 화면이 iframe 을 써서 같은 출처만 허용
-                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+                        .csrfTokenRequestHandler(csrfHandler))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/health", "/h2-console/**").permitAll()
+                        .requestMatchers("/api/health").permitAll()
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().permitAll())
                 // API 요청인데 로그인이 안 돼 있으면 구글 로그인 페이지로 튕기지 말고 401만 돌려준다.

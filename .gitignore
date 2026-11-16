@@ -2,3 +2,4 @@ data/
 secret.yml
 .DS_Store
 .idea/
+.env

@@ -1,0 +1,9 @@
+# @ActiveProfiles("test") 일 때 application.yml 위에 덮어쓰는 설정
+spring:
+  datasource:
+    # jdbc:tc: 로 시작하면 Testcontainers 가 도커로 MySQL 8.4 컨테이너를 띄우고 거기에 연결한다.
+    # 개발용 docker compose MySQL 과 완전히 분리돼서, 테스트가 개발 데이터를 지우거나 더럽히지 않는다.
+    url: jdbc:tc:mysql:8.4:///fashionfit
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    username: test
+    password: test
