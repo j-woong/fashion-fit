@@ -4,6 +4,8 @@ services:
   mysql:
     image: mysql:8.4
     container_name: fashion-fit-mysql
+    # Docker Desktop 이 켜지면 컨테이너도 자동으로 다시 켠다 (직접 docker compose stop 한 경우는 제외)
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: fashionfit
       MYSQL_USER: ${DB_USERNAME:-fashionfit}

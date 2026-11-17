@@ -104,6 +104,31 @@ class SizeCheckServiceTest extends IntegrationTestSupport {
                 .isInstanceOf(NotFoundException.class);
     }
 
+    @Test
+    void 성공_같은_상품_링크면_추적_꼬리표가_달라도_저장해_둔_실측표를_찾는다() {
+        sizeCheckService.create(me.getId(), new SizeCheckRequest(GarmentCategory.OUTER, "경량패딩",
+                "https://shop.com/goods/55?utm_source=ig", null,
+                List.of(new SizeInput("M", Map.of(CHEST_WIDTH, 58.0, TOTAL_LENGTH, 68.0)))));
+
+        assertThat(sizeCheckService.findSavedChart(me.getId(), "https://shop.com/goods/55?fbclid=abc"))
+                .hasValueSatisfying(saved -> {
+                    assertThat(saved.productName()).isEqualTo("경량패딩");
+                    assertThat(saved.sizes()).singleElement()
+                            .satisfies(row -> assertThat(row.measurements()).containsEntry(CHEST_WIDTH, 58.0));
+                });
+    }
+
+    @Test
+    void 실패_남의_실측표나_쇼핑몰_첫_화면_주소로는_찾지_않는다() {
+        sizeCheckService.create(other.getId(), new SizeCheckRequest(GarmentCategory.OUTER, "남의 옷",
+                "https://shop.com/goods/55", null, List.of(new SizeInput("M", Map.of(CHEST_WIDTH, 58.0)))));
+        sizeCheckService.create(me.getId(), new SizeCheckRequest(GarmentCategory.OUTER, "첫 화면 링크",
+                "https://shop.com/?utm_source=ig", null, List.of(new SizeInput("M", Map.of(CHEST_WIDTH, 58.0)))));
+
+        assertThat(sizeCheckService.findSavedChart(me.getId(), "https://shop.com/goods/55")).isEmpty();
+        assertThat(sizeCheckService.findSavedChart(me.getId(), "https://shop.com/")).isEmpty();
+    }
+
     private SizeCheckRequest request(GarmentCategory category, SizeInput... sizes) {
         return new SizeCheckRequest(category, "테스트 상품", null, null, List.of(sizes));
     }

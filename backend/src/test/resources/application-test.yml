@@ -7,3 +7,8 @@ spring:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
     username: test
     password: test
+  ai:
+    google:
+      genai:
+        # 테스트에서는 실제 Gemini 를 부르지 않는다 (가짜 분석기 사용). 빈 키로 시작이 막히지 않게 더미 값만 둔다
+        api-key: test-dummy-key

@@ -17,6 +17,21 @@ spring:
     open-in-view: false
   flyway:
     locations: classpath:db/migration
+  servlet:
+    multipart:
+      # 스크린샷 업로드 크기 (기본값 1MB 는 휴대폰 스크린샷에 부족하다)
+      max-file-size: 5MB
+      max-request-size: 6MB
+  ai:
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY:none}
+        chat:
+          options:
+            # 모델 이름이 바뀌면 secret.yml 에 GEMINI_MODEL 로 덮어쓴다
+            model: ${GEMINI_MODEL:gemini-flash-latest}
+            # 낮을수록 같은 사진에 같은 답을 한다 (분석은 창의성보다 일관성이 중요)
+            temperature: 0.2
   security:
     oauth2:
       client:

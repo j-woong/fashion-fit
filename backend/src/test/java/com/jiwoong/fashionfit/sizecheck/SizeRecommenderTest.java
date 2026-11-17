@@ -86,4 +86,28 @@ class SizeRecommenderTest {
         assertThat(result.verdict()).isEqualTo(Verdict.NOT_COMPARABLE);
         assertThat(result.recommendedSize()).isNull();
     }
+
+    @Test
+    void 성공_품_차이로_내_사이즈_대비_핏을_알려준다() {
+        Map<String, Map<MeasurementPart, Double>> sizes = new LinkedHashMap<>();
+        sizes.put("S", Map.of(CHEST_WIDTH, 53.0, SHOULDER_WIDTH, 45.0));  // 품 -5cm
+        sizes.put("M", Map.of(CHEST_WIDTH, 58.0, SHOULDER_WIDTH, 50.0));  // 같음
+        sizes.put("L", Map.of(CHEST_WIDTH, 61.0, SHOULDER_WIDTH, 53.0));  // 품 +3cm
+        sizes.put("XL", Map.of(CHEST_WIDTH, 65.0, SHOULDER_WIDTH, 56.0)); // 품 +6~7cm
+
+        SizeRecommendation result = recommender.recommend(reference, sizes);
+
+        assertThat(result.sizes()).extracting(SizeRecommendation.SizeResult::fitType)
+                .containsExactly(FitType.TIGHT, FitType.REGULAR, FitType.SEMI_OVER, FitType.OVER);
+    }
+
+    @Test
+    void 실패_품_부위가_없으면_핏을_판정하지_않는다() {
+        Map<String, Map<MeasurementPart, Double>> sizes = Map.of("M", Map.of(TOTAL_LENGTH, 70.0));
+
+        SizeRecommendation result = recommender.recommend(reference, sizes);
+
+        assertThat(result.sizes().getFirst().fitType()).isNull();
+        assertThat(result.recommendedSize()).isEqualTo("M"); // 길이만으로도 추천은 한다
+    }
 }

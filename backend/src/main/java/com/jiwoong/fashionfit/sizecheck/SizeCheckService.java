@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
@@ -46,7 +47,7 @@ public class SizeCheckService {
 
         SizeChart chart = sizeChartRepository.save(SizeChart.create(
                 userRepository.getReferenceById(userId), request.category(),
-                request.productName().trim(), blankToNull(request.productUrl()), entries));
+                request.productName().trim(), ProductUrlNormalizer.normalize(request.productUrl()), entries));
 
         SizeRecommendation result = sizeRecommender.recommend(measurementsOf(reference), chart.getSizes());
         chart.recordResult(
@@ -54,6 +55,17 @@ public class SizeCheckService {
                 reference == null ? null : reference.getName(),
                 result.recommendedSize());
         return SizeCheckResponse.of(chart, reference, result);
+    }
+
+    // 같은 상품 링크로 전에 넣어 둔 실측표가 있으면 돌려준다. 실측표를 다시 넣지 않아도 되게 하는 용도.
+    // 쇼핑몰 첫 화면 주소는 상품을 구분하지 못하므로 찾지 않는다 (다른 상품의 실측표가 나오면 안 된다).
+    public Optional<SavedSizeChartResponse> findSavedChart(Long userId, String url) {
+        String normalized = ProductUrlNormalizer.normalize(url);
+        if (normalized == null || ProductUrlNormalizer.isHomepage(normalized)) {
+            return Optional.empty();
+        }
+        return sizeChartRepository.findFirstByUserIdAndProductUrlOrderByCreatedAtDesc(userId, normalized)
+                .map(SavedSizeChartResponse::from);
     }
 
     public List<SizeCheckSummary> list(Long userId) {
@@ -156,9 +168,5 @@ public class SizeCheckService {
             throw new InvalidInputException("실측표를 확인해 주세요", errors);
         }
         return entries;
-    }
-
-    private String blankToNull(String value) {
-        return value == null || value.isBlank() ? null : value.trim();
     }
 }

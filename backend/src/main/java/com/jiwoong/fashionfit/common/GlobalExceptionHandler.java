@@ -10,6 +10,10 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
+
+import com.jiwoong.fashionfit.analysis.AnalysisFailedException;
 
 // 컨트롤러에서 터진 예외를 한 곳에서 받아 ErrorResponse 로 바꾼다.
 @RestControllerAdvice
@@ -41,5 +45,25 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ErrorResponse> handleNotFound(NotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ErrorResponse.of(e.getMessage()));
+    }
+
+    // 업로드 파일이 application.yml 의 max-file-size(5MB)를 넘음 → 400
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponse> handleTooLarge(MaxUploadSizeExceededException e) {
+        return ResponseEntity.badRequest().body(new ErrorResponse("이미지를 확인해 주세요",
+                java.util.Map.of("image", "5MB 이하 이미지만 올릴 수 있어요")));
+    }
+
+    // multipart 요청에 image 필드가 없음 → 400
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<ErrorResponse> handleMissingPart(MissingServletRequestPartException e) {
+        return ResponseEntity.badRequest().body(new ErrorResponse("이미지를 확인해 주세요",
+                java.util.Map.of("image", "스크린샷을 올려 주세요")));
+    }
+
+    // 외부 LLM 호출 실패 → 502 Bad Gateway (우리 서버가 아니라 바깥 서비스 문제라는 뜻)
+    @ExceptionHandler(AnalysisFailedException.class)
+    public ResponseEntity<ErrorResponse> handleAnalysisFailed(AnalysisFailedException e) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(ErrorResponse.of(e.getMessage()));
     }
 }

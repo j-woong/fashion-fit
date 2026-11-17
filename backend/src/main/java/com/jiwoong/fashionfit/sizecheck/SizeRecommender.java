@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
@@ -28,6 +29,11 @@ public class SizeRecommender {
 
     static final double GOOD_SCORE = 1.5;      // 평균 1.5cm 이내: 거의 같음
     static final double SLIGHTLY_OFF_SCORE = 3.0; // 평균 3cm 이내: 조금 차이
+
+    // 핏(붙는지 넉넉한지)을 좌우하는 "품" 부위. 총장·소매·밑위 같은 길이는 핏 판정에서 뺀다.
+    private static final Set<MeasurementPart> WIDTH_PARTS = Set.of(
+            MeasurementPart.CHEST_WIDTH, MeasurementPart.SHOULDER_WIDTH,
+            MeasurementPart.WAIST_WIDTH, MeasurementPart.HIP_WIDTH, MeasurementPart.THIGH_WIDTH);
 
     private static final Map<MeasurementPart, Double> WEIGHTS = Map.of(
             MeasurementPart.CHEST_WIDTH, 3.0,
@@ -62,7 +68,7 @@ public class SizeRecommender {
         }
 
         List<SizeResult> marked = results.stream()
-                .map(r -> r == best ? new SizeResult(r.label(), r.score(), true, r.parts()) : r)
+                .map(r -> r == best ? r.markRecommended() : r)
                 .toList();
         return new SizeRecommendation(best.label(), verdictOf(best.score()), marked);
     }
@@ -72,6 +78,8 @@ public class SizeRecommender {
         List<PartDiff> parts = new ArrayList<>();
         double weightedSum = 0;
         double weightTotal = 0;
+        double widthSignedSum = 0; // 품 부위의 (상품 - 내 사이즈) 합: 핏 판정용
+        double widthWeightTotal = 0;
 
         // 부위 순서는 MeasurementPart 정의 순서(총장 → 어깨 → 가슴 ...)로 고정
         for (MeasurementPart part : MeasurementPart.values()) {
@@ -84,11 +92,19 @@ public class SizeRecommender {
             double weight = WEIGHTS.getOrDefault(part, 1.0);
             weightedSum += weight * Math.abs(diff);
             weightTotal += weight;
+            if (WIDTH_PARTS.contains(part)) {
+                widthSignedSum += weight * diff;
+                widthWeightTotal += weight;
+            }
             parts.add(new PartDiff(part, part.getLabel(), productCm, referenceCm, diff));
         }
 
         Double score = weightTotal == 0 ? null : round(weightedSum / weightTotal);
-        return new SizeResult(label, score, false, parts);
+        FitType fitType = widthWeightTotal == 0 ? null : FitType.of(widthSignedSum / widthWeightTotal);
+        return new SizeResult(label, score, false, fitType,
+                fitType == null ? null : fitType.getLabel(),
+                fitType == null ? null : fitType.getDescription(),
+                parts);
     }
 
     private Verdict verdictOf(double score) {
