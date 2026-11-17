@@ -68,3 +68,9 @@ export const apiGet = <T>(path: string) => request<T>(path)
 export const apiPost = <T>(path: string, body?: unknown) => request<T>(path, jsonInit('POST', body))
 export const apiPut = <T>(path: string, body?: unknown) => request<T>(path, jsonInit('PUT', body))
 export const apiDelete = <T>(path: string) => request<T>(path, { method: 'DELETE' })
+// 파일 업로드. Content-Type 은 브라우저가 boundary 까지 붙여서 정하므로 직접 넣지 않는다
+// 이미지는 LLM 이 읽느라 오래 걸릴 수 있다. 30초를 넘기면 끊어서 화면이 "읽는 중"에 멈춰 있지 않게 한다
+// (끊기면 fetch 가 예외를 던지고, 화면은 "직접 입력해 주세요" 안내를 보여준다)
+const UPLOAD_TIMEOUT_MS = 30_000
+export const apiPostForm = <T>(path: string, form: FormData) =>
+  request<T>(path, { method: 'POST', body: form, signal: AbortSignal.timeout(UPLOAD_TIMEOUT_MS) })

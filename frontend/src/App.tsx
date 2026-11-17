@@ -5,11 +5,10 @@ import { UnauthorizedError } from './api/client'
 import { AuthContext, type AuthValue } from './auth/AuthContext'
 import BodyProfileEditPage from './pages/BodyProfileEditPage'
 import BodyProfilePage from './pages/BodyProfilePage'
-import ClosetPage from './pages/ClosetPage'
-import GarmentFormPage from './pages/GarmentFormPage'
+import ComparePage from './pages/ComparePage'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
-import SizeCheckFormPage from './pages/SizeCheckFormPage'
+import MySizesPage from './pages/MySizesPage'
 import SizeCheckListPage from './pages/SizeCheckListPage'
 import SizeCheckResultPage from './pages/SizeCheckResultPage'
 
@@ -75,12 +74,10 @@ function App() {
         // 주소별 화면
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/compare" element={<ComparePage />} />
+          <Route path="/my-sizes" element={<MySizesPage />} />
           <Route path="/body-profile" element={<BodyProfileEditPage />} />
-          <Route path="/closet" element={<ClosetPage />} />
-          <Route path="/closet/new" element={<GarmentFormPage />} />
-          <Route path="/closet/:garmentId/edit" element={<GarmentFormPage />} />
           <Route path="/size-checks" element={<SizeCheckListPage />} />
-          <Route path="/size-checks/new" element={<SizeCheckFormPage />} />
           <Route path="/size-checks/:sizeCheckId" element={<SizeCheckResultPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

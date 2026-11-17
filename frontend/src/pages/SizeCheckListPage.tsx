@@ -16,7 +16,7 @@ function SizeCheckListPage() {
         <Link className="text-button" to="/">
           ← 홈
         </Link>
-        <Link className="text-button strong" to="/size-checks/new">
+        <Link className="text-button strong" to="/compare">
           + 새로 비교
         </Link>
       </header>
@@ -27,7 +27,7 @@ function SizeCheckListPage() {
       {checks?.length === 0 && (
         <section className="card">
           <p>아직 비교한 상품이 없어요.</p>
-          <Link className="button primary" to="/size-checks/new">
+          <Link className="button primary" to="/compare">
             첫 사이즈 비교하기
           </Link>
         </section>
@@ -40,7 +40,7 @@ function SizeCheckListPage() {
           </div>
           <p className="sub">
             {c.categoryLabel}
-            {c.referenceGarmentName && ` · 기준: ${c.referenceGarmentName}`}
+            
             {' · '}
             {new Date(c.createdAt).toLocaleDateString('ko-KR')}
           </p>

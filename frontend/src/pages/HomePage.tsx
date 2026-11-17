@@ -9,13 +9,15 @@ const show = (value: number | null, unit: string) => (value == null ? '-' : `${v
 function HomePage() {
   const { me, logout } = useAuth()
   const [bodyProfile, setBodyProfile] = useState<BodyProfile | null>(null)
-  const [garments, setGarments] = useState<Garment[] | null>(null)
+  const [mySizes, setMySizes] = useState<Garment[] | null>(null)
 
-  // 홈에 필요한 두 가지를 동시에 불러온다
   useEffect(() => {
     getBodyProfile().then(setBodyProfile)
-    listGarments().then(setGarments)
+    listGarments().then(setMySizes)
   }, [])
+
+  // 종류별로 하나씩만 보여준다 (목록은 최근순이라 처음 나오는 것이 최신)
+  const sizeCategories = [...new Map((mySizes ?? []).map((g) => [g.category, g.categoryLabel])).values()]
 
   return (
     <main className="page">
@@ -33,15 +35,40 @@ function HomePage() {
 
       <section className="card">
         <div className="header">
-          <h2>사이즈 비교</h2>
+          <h2>옷 비교하기</h2>
           <Link className="text-button" to="/size-checks">
-            기록 보기
+            비교 기록
           </Link>
         </div>
-        <p>사고 싶은 옷의 실측표를 넣으면 내 옷과 비교해서 맞는 사이즈를 알려드려요.</p>
-        <Link className="button primary" to="/size-checks/new">
-          사이즈 비교하기
+        <p>옷 스크린샷으로 비슷한 옷을 찾고, 실측표를 넣어 내 사이즈와 비교해요.</p>
+        <Link className="button primary" to="/compare">
+          옷 비교하기
         </Link>
+      </section>
+
+      <section className="card">
+        <div className="header">
+          <h2>내 사이즈</h2>
+          <Link className="text-button" to="/my-sizes">
+            {sizeCategories.length > 0 ? '수정' : '입력'}
+          </Link>
+        </div>
+        {mySizes === null && <p>불러오는 중...</p>}
+        {mySizes !== null && sizeCategories.length === 0 && (
+          <>
+            <p>잘 맞는 옷의 실측을 한 번 넣어 두면, 실측표만으로 맞는 사이즈를 알려드려요.</p>
+            <Link className="button primary" to="/my-sizes">
+              내 사이즈 입력하기
+            </Link>
+          </>
+        )}
+        {sizeCategories.length > 0 && (
+          <ul className="chips">
+            {sizeCategories.map((label) => (
+              <li key={label}>{label} ✓</li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <section className="card">
@@ -69,25 +96,6 @@ function HomePage() {
         ) : (
           <p>불러오는 중...</p>
         )}
-      </section>
-
-      <section className="card">
-        <div className="header">
-          <h2>내 옷장</h2>
-          <Link className="text-button" to="/closet">
-            전체 보기
-          </Link>
-        </div>
-        {garments === null && <p>불러오는 중...</p>}
-        {garments?.length === 0 && (
-          <>
-            <p>잘 맞는 옷 하나의 실측을 등록하면 사이즈 비교를 시작할 수 있어요.</p>
-            <Link className="button primary" to="/closet/new">
-              첫 기준 옷 등록하기
-            </Link>
-          </>
-        )}
-        {garments && garments.length > 0 && <p>기준 옷 {garments.length}벌이 등록돼 있어요.</p>}
       </section>
     </main>
   )
