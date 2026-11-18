@@ -1,4 +1,4 @@
-# Fashion Fit — frontend
+# WorthIt — frontend
 
 React + TypeScript + Vite
 

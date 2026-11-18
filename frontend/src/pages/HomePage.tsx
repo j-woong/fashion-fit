@@ -22,7 +22,7 @@ function HomePage() {
   return (
     <main className="page">
       <header className="header">
-        <h1>Fashion Fit</h1>
+        <h1>WorthIt</h1>
         <button type="button" className="text-button" onClick={logout}>
           로그아웃
         </button>

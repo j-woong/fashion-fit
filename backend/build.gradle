@@ -6,7 +6,7 @@ plugins {
 
 group = 'com.jiwoong'
 version = '0.0.1-SNAPSHOT'
-description = 'Fashion Fit backend'
+description = 'WorthIt backend'
 
 java {
     toolchain {
