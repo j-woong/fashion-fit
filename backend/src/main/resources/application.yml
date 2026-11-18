@@ -1,6 +1,6 @@
 spring:
   application:
-    name: fashion-fit-backend
+    name: worthit-backend
   config:
     # 구글 client-id / client-secret 은 여기 말고 backend/secret.yml 에 (git에 안 올라감)
     # ./ 는 "실행한 위치" 기준이라, backend 에서 실행(gradlew)해도 루트에서 실행(IntelliJ)해도 찾도록 두 곳을 본다

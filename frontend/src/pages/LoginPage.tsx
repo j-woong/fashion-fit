@@ -7,7 +7,7 @@ type Props = {
 function LoginPage({ loginError }: Props) {
   return (
     <main className="page">
-      <h1>Fashion Fit</h1>
+      <h1>WorthIt</h1>
       <p className="sub">인스타에서 본 그 옷, 나한테 맞는 사이즈로 찾기</p>
 
       <section className="card">
