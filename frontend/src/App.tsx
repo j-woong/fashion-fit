@@ -7,7 +7,7 @@ import BodyProfileEditPage from './pages/BodyProfileEditPage'
 import BodyProfilePage from './pages/BodyProfilePage'
 import ComparePage from './pages/ComparePage'
 import HomePage from './pages/HomePage'
-import LoginPage from './pages/LoginPage'
+import LandingPage from './pages/LandingPage'
 import MySizesPage from './pages/MySizesPage'
 import SizeCheckListPage from './pages/SizeCheckListPage'
 import SizeCheckResultPage from './pages/SizeCheckResultPage'
@@ -54,7 +54,7 @@ function App() {
     )
   }
   if (auth.kind === 'guest') {
-    return <LoginPage loginError={loginError} />
+    return <LandingPage loginError={loginError} />
   }
 
   // ---- 2) 로그인한 사람: Context 에 담아서 아래 화면들이 useAuth() 로 꺼내 쓰게 한다 ----
@@ -74,6 +74,8 @@ function App() {
         // 주소별 화면
         <Routes>
           <Route path="/" element={<HomePage />} />
+          {/* 로그인한 사람도 로고를 누르면 서비스 소개를 볼 수 있다 */}
+          <Route path="/intro" element={<LandingPage loginError={false} member />} />
           <Route path="/compare" element={<ComparePage />} />
           <Route path="/my-sizes" element={<MySizesPage />} />
           <Route path="/body-profile" element={<BodyProfileEditPage />} />
