@@ -22,8 +22,14 @@ import { shrinkImage } from '../lib/shrinkImage'
 type Row = { label: string; values: Record<string, string> }
 
 const emptyRow = (label = ''): Row => ({ label, values: {} })
-const errorMessage = (e: unknown, fallback: string) =>
-  e instanceof ApiError ? (e.body.fieldErrors.image ?? e.body.fieldErrors.text ?? e.body.message) : fallback
+// 실패 원인을 구분해서 알려 준다. 모두 같은 문구로 뭉뚱그리면 사용자도 개발자도 원인을 알 수 없다.
+const errorMessage = (e: unknown, fallback: string) => {
+  if (e instanceof ApiError) return e.body.fieldErrors.image ?? e.body.fieldErrors.text ?? e.body.message
+  if (e instanceof DOMException && e.name === 'TimeoutError')
+    return '시간이 너무 오래 걸려서 멈췄어요(60초). 잠시 후 다시 시도해 주세요.'
+  if (e instanceof TypeError) return '서버에 연결하지 못했어요. 백엔드가 켜져 있는지 확인해 주세요.'
+  return fallback
+}
 const isEmptyTable = (rows: Row[]) => rows.every((row) => Object.values(row.values).every((v) => !v.trim()))
 
 // /compare : 옷 비교하기

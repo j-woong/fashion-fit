@@ -32,6 +32,14 @@ spring:
             model: ${GEMINI_MODEL:gemini-flash-latest}
             # 낮을수록 같은 사진에 같은 답을 한다 (분석은 창의성보다 일관성이 중요)
             temperature: 0.2
+    # Gemini 가 잠깐 막히면(429 등) Spring AI 가 자동으로 다시 시도한다.
+    # 기본값은 10번까지 점점 길게 기다려서 화면이 1분 넘게 멈출 수 있다 → 2번, 최대 4초 간격으로 줄인다.
+    retry:
+      max-attempts: 2
+      backoff:
+        initial-interval: 1s
+        multiplier: 2
+        max-interval: 4s
   security:
     oauth2:
       client:

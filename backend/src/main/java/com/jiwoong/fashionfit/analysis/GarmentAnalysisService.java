@@ -24,11 +24,14 @@ public class GarmentAnalysisService {
     public GarmentAnalysisResponse analyze(byte[] image, String contentType) {
         ImageValidator.validate(image, contentType);
 
+        // 성공해도 걸린 시간을 남긴다. 화면에서 "오래 걸려서 끊긴 것"인지 "실패한 것"인지 로그로 구분하려고.
+        long startedAt = System.currentTimeMillis();
         GarmentAnalysis analysis;
         try {
             analysis = analyzer.analyze(image, contentType);
+            log.info("스크린샷 분석 완료: {}ms, {}KB", System.currentTimeMillis() - startedAt, image.length / 1024);
         } catch (RuntimeException e) {
-            log.warn("스크린샷 분석 실패: {}", e.getMessage(), e);
+            log.warn("스크린샷 분석 실패: {}ms, {}", System.currentTimeMillis() - startedAt, e.getMessage(), e);
             throw new AnalysisFailedException("분석에 실패했어요. 잠시 후 다시 시도해 주세요.", e);
         }
 
